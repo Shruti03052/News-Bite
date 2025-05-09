@@ -1,44 +1,48 @@
 
-import React,{ useState,useEffect } from "react";
+import React,{ useState,useEffect, use } from "react";
 import "../News.css"
-
+import { useParams } from "react-router-dom";
 export default function Cards() {
 const[news,setNews]=useState([]);
 const[visibleNews,setVisibleNews]=useState(20);
-// const[category,setCategory]=useState("general");
+const {category}=useParams();
+console.log(category);
+ useEffect(()=>{
+  const fetchNews= async()=>{
+    const query= category || 'general';
+    try{
+      const response=await fetch(`http://localhost:5000/api/news?q=${query}`)
+      const data=await response.json();
+      setVisibleNews(20)
+      setNews(data.articles)
+      console.log(data);
+    }
+    catch(error){
+      console.error("Error in fetching the data",error);
+    }
+
+  }
+  fetchNews();
+ },[category])
+
 
 // useEffect(()=>{
-//   fetchNews()
-// },[category])
-
-// const fetchNews= async()=>{
-//   try{
-//     const response=await fetch(`http://localhost:5000/api/news?q=${category}`)
-//     const data=await response.json();
+  
+//   fetch('http://localhost:5000/api/news?q=general')
+//   .then((response)=>response.json())
+//   .then((data)=>{
 //     setNews(data.articles)
-//   }
-//   catch(error){
-//     console.log("Error in fetching news",error);
-//   }  
-// }
-
-// "https://newsapi.org/v2/everything?q=general"
-useEffect(()=>{
-  fetch('http://localhost:5000/api/news?q=general')
-  .then((response)=>response.json())
-  .then((data)=>{
-    setNews(data.articles)
    
     
-  })
-  .catch((error)=>{
-    console.error('Error fetching data:', error);
+//   })
+//   .catch((error)=>{
+//     console.error('Error fetching data:', error);
    
 
-  })
+//   })
     
 
-},[])
+// },[])
 
 const loadmore=()=>{
   setVisibleNews((cnt)=> cnt+20);
@@ -48,7 +52,7 @@ const loadmore=()=>{
 
   return (
     <div className="news-container">
-      {news.slice(0,visibleNews).map((article,index)=>(
+      {news.filter(article => article.description && article.title && article.urlToImage).slice(0,visibleNews).map((article,index)=>(
         <div key={index} className="news-card">
           {article.urlToImage &&(
             <img src={article.urlToImage} alt={article.title} className="news-img" />

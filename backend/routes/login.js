@@ -24,11 +24,19 @@ router.post("/google-login", async(req,res)=>{
             await newUser.save();
 
         }
+        const savedUser=user || newUser;
         
         const authToken=jwt.sign({userId: user._id},
             process.env.SECRET_KEY,
             {expiresIn:"7d"});
-            res.status(200).json({token:authToken,message:"Logged in successfully"});
+            res.status(200).json({token:authToken,message:"Logged in successfully",
+                user:{
+                    _id: savedUser._id,
+                    name: savedUser.name,
+                    email:savedUser.email
+
+                }
+            });
     
 
     }
@@ -62,7 +70,14 @@ router.post("/login",
             const authToken=jwt.sign({userId:user._id},process.env.SECRET_KEY,
                 {expiresIn:"7d"});
             
-            return res.status(200).json({message:"Logged in Successfully",token:authToken});
+            return res.status(200).json({message:"Logged in Successfully",token:authToken,
+                user:{
+                    _id:user._id,
+                    name:user.name,
+                    email:user.email
+
+                }
+            });
         
 
         }

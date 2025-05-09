@@ -27,14 +27,26 @@ router.post("/signup",
             let already_exists=await User.findOne({email});
             // console.log(already_exists)
             if(already_exists){
-                res.status(400).json({message:"User already exists"})
+                res.status(400).json({message:"User already exists",
+                    user:{
+                        _id: already_exists._id,
+                        name: already_exists.name,
+                        email: already_exists.email
+                    }
+                })
 
             }
             const salt=await bcrypt.genSalt(10);
             const hashedPassword=await bcrypt.hash(password,salt);
             new_user=new User({name,email,password:hashedPassword});
             await new_user.save()
-            res.status(201).json({message:"Account created Successfully!!"})
+            res.status(201).json({message:"Account created Successfully!!",
+                user:{
+                    _id:new_user._id,
+                    name: new_user.name,
+                    email: new_user.email
+                }
+            })
 
 
         }

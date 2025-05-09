@@ -6,14 +6,17 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { GoogleOAuthProvider,GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
+import { AuthContext } from '../context/AuthContext';
+import { useContext } from 'react';
 
 export default function Signup() {
 
-    const[user,setUser]=useState({name:"",email:"",password:""});
+    const[form,setForm]=useState({name:"",email:"",password:""});
     const navigate=useNavigate();
+    const{setUser}=useContext(AuthContext);
 
     const handleChange = (e) => {
-        setUser({ ...user, [e.target.name]: e.target.value });
+        setForm({ ...form, [e.target.name]: e.target.value });
     };
 
    const handleSubmit=async(e)=>{
@@ -22,7 +25,7 @@ export default function Signup() {
         const response=await fetch("http://localhost:5000/api/signup",{
             method:"POST",
             headers:{"Content-Type":"application/json"},
-            body:JSON.stringify(user)
+            body:JSON.stringify(form)
         });
         const data=await response.json();
         if(response.ok){
@@ -64,6 +67,8 @@ export default function Signup() {
          // console.log(data)
          if(response.ok){
              localStorage.setItem("token",data.token);
+             localStorage.setItem("user",JSON.stringify(decoded));
+             setUser(decoded);
              toast.success("Logged in successfully! Redirecting...");
              setTimeout(()=>navigate("/"),2000);
          }
@@ -96,15 +101,15 @@ export default function Signup() {
         <p>Stay informed, Stay empowered</p>
   <form onSubmit={handleSubmit}>
 <div className="mb-3">
-<input type="name" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Name" onChange={handleChange} name='name' value={user.name}/>
+<input type="name" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Name" onChange={handleChange} name='name' value={form.name}/>
 </div>
 <div className='mb-3'>
-<input type="email" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="E-mail address" onChange={handleChange} name='email' value={user.email}/>
+<input type="email" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="E-mail address" onChange={handleChange} name='email' value={form.email}/>
 </div>
 
 <div className="mb-3">
 
-<input type="password" className="form-control" id="exampleInputPassword1" placeholder='Password' onChange={handleChange} name='password' value={user.password}/>
+<input type="password" className="form-control" id="exampleInputPassword1" placeholder='Password' onChange={handleChange} name='password' value={form.password}/>
 
 </div>
 <div className="mb-3">

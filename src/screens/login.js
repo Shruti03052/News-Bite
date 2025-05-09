@@ -7,29 +7,33 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Link } from 'react-router-dom';
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import {jwtDecode} from "jwt-decode";
-
+import { useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
 
 export default function Login() {
 
     // console.log(process.env.REACT_APP_GOOGLE_CLIENT_ID);
-    const[user,setUser]=useState({email:"",password:""});
+    const[formData,setFormData]=useState({email:"",password:""});
     const navigate=useNavigate();
+    const{setUser}=useContext(AuthContext);
 
     const handleChange=(e)=>{
-        setUser({...user,[e.target.name]:e.target.value})
+        setFormData({...formData,[e.target.name]:e.target.value})
     }
     const handleSubmit=async(e)=>{
         e.preventDefault();
         const response=await fetch("http://localhost:5000/api/login",{
             method:"POST",
             headers:{"Content-Type":"application/json"},
-            body:JSON.stringify(user)
+            body:JSON.stringify(formData)
         });
 
         const data=await response.json();
         console.log(data);
         if(response.ok){
             localStorage.setItem("token",data.token);
+            localStorage.setItem("user",JSON.stringify(data.user));
+            setUser(data.user);
             console.log(data)
             toast.success("Logged in successfully! Redirecting...")
             setTimeout(()=>navigate("/"),2000);
@@ -56,6 +60,8 @@ export default function Login() {
         // console.log(data)
         if(response.ok){
             localStorage.setItem("token",data.token);
+            localStorage.setItem("user",JSON.stringify(decoded));
+            setUser(decoded);
             toast.success("Logged in successfully! Redirecting...");
             setTimeout(()=>navigate("/"),2000);
         }
